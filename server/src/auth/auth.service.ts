@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -9,12 +10,16 @@ import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { RegisterRequestDto } from './dtos/register-request.dto';
 import { contains } from 'class-validator';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UserService,
     private jwtService: JwtService,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
   ) {}
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.usersService.findOneByEmail(email);
@@ -47,6 +52,20 @@ export class AuthService {
       return this.login(newUser);
     } catch (err) {
       throw err;
+    }
+  }
+
+  async getCurrentUser(user: User) {
+    try {
+      const result = await this.usersRepository.findOneBy({ id: user.id });
+
+      if (!result) {
+        throw new NotFoundException(`User #${user.id} not found`);
+      }
+
+      return result;
+    } catch (error) {
+      throw error;
     }
   }
 }
