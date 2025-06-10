@@ -33,26 +33,13 @@ export class AuthService {
     return user;
   }
 
-  async login(user: User): Promise<Object> {
-    const payload = { email: user.email, id: user.id };
-    return { access_token: this.jwtService.sign(payload) };
-  }
-
-  async register(user: RegisterRequestDto): Promise<Object> {
-    try {
-      const existingUser = await this.usersService.findOneByEmail(user.email);
-      if (existingUser) {
-        throw new BadRequestException('email already exists');
-      }
-      const newUser = new User({
-        ...user,
-      });
-
-      await this.usersService.create(newUser);
-      return this.login(newUser);
-    } catch (err) {
-      throw err;
+  async login(email: string, password: string): Promise<Object> {
+    const user = await this.validateUser(email, password);
+    if (!user) {
+      throw new UnauthorizedException();
     }
+    const payload = { email: user.email, password: user.password };
+    return { token: this.jwtService.sign(payload) };
   }
 
   async getCurrentUser(user: User) {

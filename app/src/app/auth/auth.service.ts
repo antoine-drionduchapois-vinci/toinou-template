@@ -5,6 +5,7 @@ import { TokenService } from './token.service';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { AuthResponse } from './auth.type';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class AuthService {
   async login(email: string, password: string): Promise<boolean> {
     try {
       const response = await lastValueFrom(
-        this.http.post<AuthResponse>('auth/login', {
+        this.http.post<AuthResponse>(`${environment.API_URL}/auth/login`, {
           email,
           password,
         })
@@ -34,8 +35,7 @@ export class AuthService {
 
       return true;
     } catch (err) {
-      console.error(err);
-      throw new Error(err.error.message);
+      throw err;
     }
   }
 
@@ -48,9 +48,9 @@ export class AuthService {
 
       // User not yet fetched
       if (this.user === undefined) {
-        this.user = await lastValueFrom(this.http.get('auth/user')).then(
-          (x) => new User(x)
-        );
+        this.user = await lastValueFrom(
+          this.http.get(`${environment.API_URL}/auth/user`)
+        ).then((x) => new User(x));
       }
 
       // Return user with success

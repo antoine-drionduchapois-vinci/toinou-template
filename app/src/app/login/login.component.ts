@@ -13,7 +13,7 @@ import { TokenService } from '../auth/token.service';
   styleUrl: './login.component.scss',
   providers: [AuthService, TokenService],
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
   //TODO login page
   user: User;
   email = '';
@@ -26,22 +26,17 @@ export class LoginComponent implements OnInit {
     private readonly router: Router
   ) {}
 
-  ngOnInit(): void {
-    console.log('login');
-  }
-
   async login() {
     try {
       if (!this.form.valid) {
         console.error('Field missing');
       }
       const result = await this.authServvice.login(this.email, this.password);
-      console.log(result);
       if (result) {
         this.router.navigate(['/home']);
       }
     } catch (error) {
-      console.error(error);
+      console.error(error.error.message);
     }
   }
 }
