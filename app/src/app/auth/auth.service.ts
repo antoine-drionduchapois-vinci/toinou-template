@@ -22,7 +22,7 @@ export class AuthService {
     try {
       const response = await lastValueFrom(
         this.http.post<AuthResponse>('auth/login', {
-          username: email,
+          email,
           password,
         })
       );

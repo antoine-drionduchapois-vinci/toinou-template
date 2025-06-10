@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 
 export const TOKEN_NAME = 'toinou-template-token';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class TokenService {
   useLocalStorage = true;
 

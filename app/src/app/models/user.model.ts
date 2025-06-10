@@ -1,5 +1,4 @@
 import { Base } from './base.model';
-import { Company } from './company.model';
 
 export enum UserRole {
   Admin = 'admin', // Super Admin
@@ -9,30 +8,22 @@ export enum UserRole {
   ProjectManager = 'project-manager', // Project Manager
   Supervisor = 'supervisor', // Supervisor
 
-  User = 'user'
+  User = 'user',
 }
 
 export class User extends Base<User> {
-  companyId: number;
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
   role: UserRole;
   password?: string;
-
   isActive?: boolean;
-
-  imageUrl?: string;
-
-  company?: Company;
-
 
   static create(model?: Partial<User>) {
     return new User({
       role: UserRole.User,
       isActive: true,
-      ...model
+      ...model,
     });
   }
 
@@ -46,5 +37,4 @@ export class User extends Base<User> {
     }
     return items.join(' ');
   }
-
 }
