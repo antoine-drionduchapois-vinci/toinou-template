@@ -12,6 +12,7 @@ import { RegisterRequestDto } from './dtos/register-request.dto';
 import { contains } from 'class-validator';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { userInfo } from 'os';
 
 @Injectable()
 export class AuthService {
@@ -23,14 +24,21 @@ export class AuthService {
   ) {}
   async validateUser(email: string, password: string): Promise<User> {
     const user = await this.usersService.findOneByEmail(email);
+
     if (!user) {
       throw new BadRequestException('User not found');
     }
+
     const isMatch: boolean = bcrypt.compareSync(password, user.password);
     if (!isMatch) {
       throw new BadRequestException('Password does not match');
     }
-    return user;
+    const verifiedUser = new User({
+      ...user,
+      password,
+    });
+
+    return verifiedUser;
   }
 
   async login(email: string, password: string): Promise<Object> {
@@ -38,8 +46,21 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException();
     }
-    const payload = { email: user.email, password: user.password };
-    return { token: this.jwtService.sign(payload) };
+
+    const payload = {
+      sub: user.id,
+      email: user.email,
+    };
+
+    return {
+      token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    };
   }
 
   async getCurrentUser(user: User) {

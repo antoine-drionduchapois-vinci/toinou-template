@@ -28,6 +28,8 @@ export class AuthService {
         })
       );
 
+      console.log(response);
+
       this.tokenService.setToken(response.token);
 
       // Load current user in memory
